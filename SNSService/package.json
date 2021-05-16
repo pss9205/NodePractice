@@ -1,0 +1,35 @@
+{
+  "name": "snsservice",
+  "version": "0.0.1",
+  "description": "Practice NodeJS - SNS Service",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pss9205/NodePractice.git"
+  },
+  "author": "pss",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pss9205/NodePractice/issues"
+  },
+  "homepage": "https://github.com/pss9205/NodePractice#readme",
+  "dependencies": {
+    "cookie-parse": "^0.4.0",
+    "dotenv": "^9.0.2",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "mysql2": "^2.2.5",
+    "nunjucks": "^3.2.3",
+    "sequelize": "^6.6.2",
+    "sequelize-cli": "^6.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
