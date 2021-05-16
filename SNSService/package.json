@@ -19,6 +19,7 @@
   "homepage": "https://github.com/pss9205/NodePractice#readme",
   "dependencies": {
     "cookie-parse": "^0.4.0",
+    "cookie-parser": "^1.4.5",
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
