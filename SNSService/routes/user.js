@@ -20,4 +20,24 @@ router.post("/:id/follow", isLoggedIn, async (req, res, next) => {
   }
 });
 
+router.delete("/:id/unfollow", isLoggedIn, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { id: req.user.id } });
+    if (user) {
+      const follow = await user.getFollowings({
+        where: { id: req.params.id },
+      });
+      if (follow) {
+        await user.removeFollowing(follow);
+        res.send("success");
+      }
+    } else {
+      res.status(404).send("no user");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 module.exports = router;

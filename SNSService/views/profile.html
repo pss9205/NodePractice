@@ -6,7 +6,11 @@
       <h2>팔로잉 목록</h2>
       {% if user.Followings %}
         {% for following in user.Followings %}
-          <div>{{following.nick}}</div>
+          <div>
+            {{following.nick}}
+            <input type="hidden" value="{{following.id}}" class="following-id">
+            <button class="twit-unfollow">언팔로우하기</button>
+          </div>
         {% endfor %}
       {% endif %}
     </div>
@@ -19,4 +23,28 @@
       {% endif %}
     </div>
   </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    document.querySelectorAll('.twit-unfollow').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const userId = tag.parentNode.querySelector('.following-id').value;
+          if (userId !== myId.value) {
+            if (confirm('언팔로우하시겠습니까?')) {
+              axios.delete(`/user/${userId}/unfollow`)
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+  </script>
 {% endblock %}
