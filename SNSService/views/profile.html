@@ -2,6 +2,18 @@
 
 {% block content %}
   <div class="timeline">
+    <div class="user-name">
+        <h2>프로필 정보</h2>    
+        <div class="half">    
+          <h4>이메일</h4> 
+          {{user.email}}
+        </div>
+        <div class="half">    
+          <h4>닉네임</h4> 
+          {{user.nick}}
+          <button class="nick-change">변경</button>
+        </div>
+    </div>
     <div class="followings half">
       <h2>팔로잉 목록</h2>
       {% if user.Followings %}
@@ -35,6 +47,28 @@
           if (userId !== myId.value) {
             if (confirm('언팔로우하시겠습니까?')) {
               axios.delete(`/user/${userId}/unfollow`)
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+    document.querySelectorAll('.nick-change').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const userNick = document.querySelector('#my-nick');
+          const newNick = prompt("새로운 닉네임을 알려주세요")
+          if (newNick !== userNick) {
+            if (confirm(`닉네임을 ${newNick}(으)로 변경할까요?`)) {
+              encoded = encodeURIComponent(newNick);
+              console.log(encoded)
+              axios.patch(`/user`,{newNick:encoded})
                 .then(() => {
                   location.reload();
                 })
