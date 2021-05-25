@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const { Post, HashTag } = require("../models");
+const { Post, Hashtag } = require("../models");
 const { isLoggedIn } = require("./middlewares");
 
 const router = express.Router();
@@ -45,7 +45,7 @@ router.post("/", isLoggedIn, uploadText.none(), async (req, res, next) => {
     if (hashtags) {
       const result = await Promise.all(
         hashtags.map((tag) => {
-          return HashTag.findOrCreate({
+          return Hashtag.findOrCreate({
             where: { title: tag.slice(1).toLowerCase() },
           });
         })
