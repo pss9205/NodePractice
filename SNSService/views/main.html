@@ -40,6 +40,11 @@
             {% if twit.img %}
               <div class="twit-img"><img src="{{twit.img}}" alt="섬네일"></div>
             {% endif %}
+            {% if not likes.includes(twit.id) %}
+              <button class="twit-like">좋아요</button>
+            {% else %}
+              <button class="twit-dislike">좋아요 취소</button>
+            {% endif %}
           </div>
         {% endfor %}
       </div>
@@ -100,6 +105,36 @@
                 });
             }
           }
+        }
+      });
+    });
+    document.querySelectorAll('.twit-like').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const twitId = tag.parentNode.querySelector('.twit-id').value;
+          axios.post(`/post/like`,{id:twitId})
+            .then(() => {
+              location.reload();
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+      });
+    });
+    document.querySelectorAll('.twit-dislike').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const twitId = tag.parentNode.querySelector('.twit-id').value;
+          axios.post(`/post/dislike`,{id:twitId})
+            .then(() => {
+              location.reload();
+            })
+            .catch((err) => {
+              console.error(err);
+            });
         }
       });
     });

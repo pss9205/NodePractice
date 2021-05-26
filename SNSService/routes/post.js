@@ -3,9 +3,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const { Post, Hashtag } = require("../models");
+const { Post, Hashtag, User } = require("../models");
 const { isLoggedIn } = require("./middlewares");
-
+const cache = require("../passport/cache");
 const router = express.Router();
 
 try {
@@ -26,6 +26,34 @@ const uploadImg = multer({
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+router.post("/like", isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.body.id } });
+    if (post) {
+      const result = await post.addLikes(req.user.id);
+      cache.setDirty(req.user.id);
+      res.send("success");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.post("/dislike", isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.body.id } });
+    if (post) {
+      const result = await post.removeLikes(req.user.id);
+      cache.setDirty(req.user.id);
+      res.send("success");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 router.post("/img", isLoggedIn, uploadImg.single("img"), (req, res) => {
