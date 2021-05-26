@@ -33,9 +33,17 @@
             {% if not followerIdList.includes(twit.User.id) and twit.User.id !== user.id %}
               <button class="twit-follow">팔로우하기</button>
             {% endif %}
+            {% if twit.User.id == user.id %}
+              <button class="twit-delete">삭제</button>
+            {% endif %}
             <div class="twit-content">{{twit.content}}</div>
             {% if twit.img %}
               <div class="twit-img"><img src="{{twit.img}}" alt="섬네일"></div>
+            {% endif %}
+            {% if not likes.includes(twit.id) %}
+              <button class="twit-like">좋아요</button>
+            {% else %}
+              <button class="twit-dislike">좋아요 취소</button>
             {% endif %}
           </div>
         {% endfor %}
@@ -77,6 +85,56 @@
                 });
             }
           }
+        }
+      });
+    });
+    document.querySelectorAll('.twit-delete').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const userId = tag.parentNode.querySelector('.twit-user-id').value;
+          if (userId === myId.value) {
+            const twitId = tag.parentNode.querySelector('.twit-id').value;
+            if (confirm('삭제하시겠습니까?')) {
+              axios.delete(`/post/${twitId}`)
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+    document.querySelectorAll('.twit-like').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const twitId = tag.parentNode.querySelector('.twit-id').value;
+          axios.post(`/post/like`,{id:twitId})
+            .then(() => {
+              location.reload();
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+      });
+    });
+    document.querySelectorAll('.twit-dislike').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const twitId = tag.parentNode.querySelector('.twit-id').value;
+          axios.post(`/post/dislike`,{id:twitId})
+            .then(() => {
+              location.reload();
+            })
+            .catch((err) => {
+              console.error(err);
+            });
         }
       });
     });

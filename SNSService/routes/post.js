@@ -3,9 +3,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const { Post, HashTag } = require("../models");
+const { Post, Hashtag, User } = require("../models");
 const { isLoggedIn } = require("./middlewares");
-
+const cache = require("../passport/cache");
 const router = express.Router();
 
 try {
@@ -28,6 +28,34 @@ const uploadImg = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
+router.post("/like", isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.body.id } });
+    if (post) {
+      const result = await post.addLikes(req.user.id);
+      cache.setDirty(req.user.id);
+      res.send("success");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.post("/dislike", isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: req.body.id } });
+    if (post) {
+      const result = await post.removeLikes(req.user.id);
+      cache.setDirty(req.user.id);
+      res.send("success");
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.post("/img", isLoggedIn, uploadImg.single("img"), (req, res) => {
   console.log(req.file);
   res.json({ url: `/img/${req.file.filename}` });
@@ -45,7 +73,7 @@ router.post("/", isLoggedIn, uploadText.none(), async (req, res, next) => {
     if (hashtags) {
       const result = await Promise.all(
         hashtags.map((tag) => {
-          return HashTag.findOrCreate({
+          return Hashtag.findOrCreate({
             where: { title: tag.slice(1).toLowerCase() },
           });
         })
@@ -53,6 +81,19 @@ router.post("/", isLoggedIn, uploadText.none(), async (req, res, next) => {
       await post.addHashtags(result.map((r) => r[0]));
     }
     res.redirect("/");
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.delete("/:id", isLoggedIn, uploadText.none(), async (req, res, next) => {
+  try {
+    const result = await Post.destroy({
+      where: { id: req.params.id },
+    });
+    if (result == 1) res.send("success");
+    else res.status(404).send("no twit");
   } catch (error) {
     console.error(error);
     next(error);

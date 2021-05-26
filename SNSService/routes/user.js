@@ -4,7 +4,7 @@ const { isLoggedIn } = require("./middlewares");
 const User = require("../models/user");
 
 const router = express.Router();
-
+const cache = require("../passport/cache");
 router.patch("/", isLoggedIn, async (req, res, next) => {
   try {
     nick = decodeURIComponent(req.body["newNick"]);
@@ -12,8 +12,10 @@ router.patch("/", isLoggedIn, async (req, res, next) => {
       { nick: nick },
       { where: { id: req.user.id } }
     );
-    if (result == 1) res.send("success");
-    else res.status(404).send("no user");
+    if (result == 1) {
+      cache.setDirty(req.user.id);
+      res.send("success");
+    } else res.status(404).send("no user");
   } catch (error) {
     console.error(error);
     next(error);
@@ -25,6 +27,7 @@ router.post("/:id/follow", isLoggedIn, async (req, res, next) => {
     const user = await User.findOne({ where: { id: req.user.id } });
     if (user) {
       await user.addFollowing(parseInt(req.params.id, 10));
+      cache.setDirty(req.user.id);
       res.send("success");
     } else {
       res.status(404).send("no user");
@@ -48,6 +51,7 @@ router.delete("/:id/unfollow", isLoggedIn, async (req, res, next) => {
       if (follow) {
         //찾으면 해당 레코드 삭제
         await user.removeFollowing(follow);
+        cache.setDirty(req.user.id);
         res.send("success");
       }
     } else {

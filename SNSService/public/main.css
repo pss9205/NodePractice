@@ -162,6 +162,33 @@ textarea {
   font-size: 12px;
   cursor: pointer;
 }
+.twit-delete {
+  padding: 1px 5px;
+  background: #fff;
+  border: 1px solid silver;
+  border-radius: 5px;
+  color: crimson;
+  font-size: 12px;
+  cursor: pointer;
+}
+.twit-like {
+  padding: 1px 5px;
+  background: #fff;
+  border: 1px solid silver;
+  border-radius: 5px;
+  color: crimson;
+  font-size: 12px;
+  cursor: pointer;
+}
+.twit-dislike {
+  padding: 1px 5px;
+  background: #fff;
+  border: 1px solid silver;
+  border-radius: 5px;
+  color: crimson;
+  font-size: 12px;
+  cursor: pointer;
+}
 .nick-change {
   padding: 1px 5px;
   background: #fff;
