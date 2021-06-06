@@ -1,4 +1,4 @@
-# Node JS Pracie #1 - SNS Service
+# Node JS Practice #1 - SNS Service(NodeBird)
 
 From `Node.js 교과서`
 
