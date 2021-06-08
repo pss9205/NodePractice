@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-
+const RateLimit = require("express-rate-limit");
 exports.isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     next();
@@ -19,7 +19,7 @@ exports.isNotLoggedIn = (req, res, next) => {
 
 exports.verifyToken = (req, res, next) => {
   try {
-    req.decoded = jwt.verify(req.headers.authorization, procss.env.JWT_SECRET);
+    req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
     return next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
@@ -33,4 +33,23 @@ exports.verifyToken = (req, res, next) => {
       message: "unauthorized token",
     });
   }
+};
+
+exports.apiLimiter = new RateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  delayMs: 0,
+  handler(req, res) {
+    res.status(this.statusCode).json({
+      code: this.statusCode,
+      message: "API limit : 1 time per minute",
+    });
+  },
+});
+
+exports.deprecated = (req, res) => {
+  res.status(410).json({
+    code: 410,
+    message: "This API was deprecated",
+  });
 };
