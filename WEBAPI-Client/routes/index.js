@@ -52,6 +52,25 @@ router.get("/", (req, res) => {
   res.render("main", { key: process.env.CLIENT_SECRET });
 });
 
+router.get("/myfollowings/", async (req, res, next) => {
+  try {
+    const result = await request(req, "/following/my");
+    res.json(result.data);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get("/myfollowers/", async (req, res, next) => {
+  try {
+    const result = await request(req, "/follower/my");
+    res.json(result.data);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 // router.get("/test", async (req, res, next) => {
 //   try {
 //     if (!req.session.jwt) {
