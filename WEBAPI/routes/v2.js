@@ -117,4 +117,52 @@ router.get(
   }
 );
 
+router.get("/following/my", verifyToken, apiLimiter, async (req, res) => {
+  try {
+    const user = await User.findOne({ where: { id: req.decoded.id } });
+    const followings = await user.getFollowings({
+      attributes: ["email", "nick"],
+      joinTableAttributes: [], //to remove join table from select query https://github.com/sequelize/sequelize/issues/3664
+    });
+    if (followings) {
+      return res.json({ code: 200, payload: followings });
+    } else {
+      return res.status(404).json({
+        code: 404,
+        message: "Data Not Found",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: "Server Error",
+    });
+  }
+});
+
+router.get("/follower/my", verifyToken, apiLimiter, async (req, res) => {
+  try {
+    const user = await User.findOne({ where: { id: req.decoded.id } });
+    const followers = await user.getFollowers({
+      attributes: ["email", "nick"],
+      joinTableAttributes: [],
+    });
+    if (followers) {
+      return res.json({ code: 200, payload: followers });
+    } else {
+      return res.status(404).json({
+        code: 404,
+        message: "Data Not Found",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: "Server Error",
+    });
+  }
+});
+
 module.exports = router;
