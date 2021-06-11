@@ -1,7 +1,8 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const { verifyToken, apiLimiter } = require("./middlewares");
+const { verifyToken } = require("./middlewares");
+const apiLimiter = require("./apiLimiter");
 const { Domain, User, Post, Hashtag } = require("../models");
 const url = require("url");
 const router = express.Router();

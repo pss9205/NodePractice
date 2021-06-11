@@ -35,18 +35,6 @@ exports.verifyToken = (req, res, next) => {
   }
 };
 
-exports.apiLimiter = new RateLimit({
-  windowMs: 60 * 1000,
-  max: 10,
-  delayMs: 0,
-  handler(req, res) {
-    res.status(this.statusCode).json({
-      code: this.statusCode,
-      message: "API limit : 1 time per minute",
-    });
-  },
-});
-
 exports.deprecated = (req, res) => {
   res.status(410).json({
     code: 410,
