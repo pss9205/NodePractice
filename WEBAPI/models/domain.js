@@ -9,10 +9,14 @@ module.exports = class Domain extends Sequelize.Model {
           allowNull: false,
         },
         type: {
-          type: Sequelize.ENUM("free", "preminum"),
+          type: Sequelize.ENUM("free", "premium"),
           allowNull: false,
         },
         clientSecret: {
+          type: Sequelize.UUID,
+          allowNull: false,
+        },
+        frontSecret: {
           type: Sequelize.UUID,
           allowNull: false,
         },
