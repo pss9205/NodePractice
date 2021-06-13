@@ -49,7 +49,7 @@ router.get("/search/:hashtag", async (req, res, next) => {
 });
 
 router.get("/", (req, res) => {
-  res.render("main", { key: process.env.CLIENT_SECRET });
+  res.render("main", { key: process.env.FRONT_SECRET });
 });
 
 router.get("/myfollowings/", async (req, res, next) => {
