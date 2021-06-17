@@ -15,8 +15,5 @@ class UserDB {
   static get(id) {
     return this.DB[id]["user"];
   }
-  static delete(id) {
-    delete this.DB.id;
-  }
 }
 module.exports = UserDB;
