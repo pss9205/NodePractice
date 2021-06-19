@@ -70,6 +70,4 @@ app.use((err, req, res, next) => {
   res.render("error");
 });
 
-app.listen(app.get("port"), () => {
-  console.log(`waiting at port ${app.get("port")}`);
-});
+module.exports = app;
