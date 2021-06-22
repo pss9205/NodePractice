@@ -4,8 +4,9 @@
   "description": "Practice NodeJS - SNS Service",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app"
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "start": "nodemon server"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,10 @@
     "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "@types/jest": "^26.0.23",
+    "artillery": "^1.7.3",
+    "jest": "^27.0.4",
+    "nodemon": "^2.0.7",
+    "supertest": "^6.1.3"
   }
 }

@@ -1,56 +1,15 @@
 const express = require("express");
 const passport = require("passport");
-const bcrypt = require("bcrypt");
 const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
-const User = require("../models/user");
-const cache = require("../passport/cache");
 const router = express.Router();
 
-router.post("/join", isNotLoggedIn, async (req, res, next) => {
-  const { email, nick, password } = req.body;
-  try {
-    const exUser = await User.findOne({ where: { email } });
-    if (exUser) {
-      return res.redirect("/join?error=exist");
-    }
-    const hash = await bcrypt.hash(password, 12);
-    await User.create({
-      email,
-      nick,
-      password: hash,
-    });
-    return res.redirect("/");
-  } catch (error) {
-    console.error(error);
-    return next(error);
-  }
-});
+const { login, logout, join, kakaocallback } = require("../controllers/auth");
 
-router.post("/login", isNotLoggedIn, (req, res, next) => {
-  passport.authenticate("local", (authError, user, info) => {
-    if (authError) {
-      console.error(authError);
-      return next(authError);
-    }
-    if (!user) {
-      return res.redirect(`/?loginError=${info.message}`);
-    }
-    return req.login(user, (loginError) => {
-      if (loginError) {
-        console.error(loginError);
-        return next(loginError);
-      }
-      return res.redirect("/");
-    });
-  })(req, res, next);
-});
+router.post("/join", isNotLoggedIn, join);
 
-router.get("/logout", isLoggedIn, (req, res) => {
-  cache.delete(req.user.id);
-  req.logout();
-  req.session.destroy();
-  res.redirect("/");
-});
+router.post("/login", isNotLoggedIn, login);
+
+router.get("/logout", isLoggedIn, logout);
 
 router.get("/kakao", passport.authenticate("kakao"));
 
@@ -59,9 +18,7 @@ router.get(
   passport.authenticate("kakao", {
     failureRedirect: "/",
   }),
-  (req, res) => {
-    res.redirect("/");
-  }
+  kakaocallback
 );
 
 module.exports = router;
