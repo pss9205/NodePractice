@@ -1,67 +1,22 @@
 const express = require("express");
+const {
+  saveUser,
+  profile,
+  join,
+  pages,
+  hashtag,
+} = require("../controllers/pages");
 const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
 const router = express.Router();
-const { Post, User, Hashtag } = require("../models");
 
-router.use((req, res, next) => {
-  //add to locals because those are common values
-  res.locals.user = req.user;
-  res.locals.followerCount = req.user ? req.user.Followers.length : 0;
-  res.locals.followingCount = req.user ? req.user.Followings.length : 0;
-  res.locals.followerIdList = req.user
-    ? req.user.Followings.map((f) => f.id)
-    : [];
-  res.locals.likes = req.user ? req.user.Likes.map((p) => p.id) : [];
-  next();
-});
+router.use(saveUser);
 
-router.get("/profile", isLoggedIn, (req, res) => {
-  res.render("profile", { title: "My Profile" });
-});
+router.get("/profile", isLoggedIn, profile);
 
-router.get("/join", isNotLoggedIn, (req, res) => {
-  res.render("join", { title: "Register Account" });
-});
+router.get("/join", isNotLoggedIn, join);
 
-router.get("/", async (req, res, next) => {
-  try {
-    const posts = await Post.findAll({
-      include: {
-        model: User,
-        attributes: ["id", "nick"],
-      },
-      order: [["createdAt", "DESC"]],
-    });
-    res.render("main", {
-      title: "NodeBird",
-      twits: posts,
-    });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-});
+router.get("/", pages);
 
-router.get("/hashtag", async (req, res, next) => {
-  const query = req.query.hashtag;
-  if (!query) {
-    return res.redirect("/");
-  }
-  try {
-    const hashtag = await Hashtag.findOne({ where: { title: query } });
-    let posts = [];
-    if (hashtag) {
-      posts = await hashtag.getPosts({ include: [{ model: User }] });
-    }
-
-    return res.render("main", {
-      title: `${query} | NodeBird`,
-      twits: posts,
-    });
-  } catch (error) {
-    console.error(error);
-    return next(error);
-  }
-});
+router.get("/hashtag", hashtag);
 
 module.exports = router;
