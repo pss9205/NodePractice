@@ -35,7 +35,17 @@ sequelize
 
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/img", express.static(path.join(__dirname, "uploads")));
+app.use(
+  "/img",
+  express.static(
+    path.join(
+      __dirname,
+      process.env.NODE_ENV == "test"
+        ? process.env.UPLOAD_TEST
+        : process.env.UPLOAD
+    )
+  )
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));

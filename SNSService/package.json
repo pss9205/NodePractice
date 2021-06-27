@@ -4,7 +4,7 @@
   "description": "Practice NodeJS - SNS Service",
   "main": "app.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest -i",
     "coverage": "jest --coverage",
     "start": "nodemon server"
   },

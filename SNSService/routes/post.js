@@ -12,18 +12,19 @@ const {
   post,
   deletepost,
 } = require("../controllers/post");
-
+const uploadsDir =
+  process.env.NODE_ENV == "test" ? process.env.UPLOAD_TEST : process.env.UPLOAD;
 try {
-  fs.readdirSync("uploads");
+  fs.readdirSync(uploadsDir);
 } catch (error) {
   console.error("creating uploads");
-  fs.mkdirSync("uploads");
+  fs.mkdirSync(uploadsDir);
 }
 
 const uploadImg = multer({
   storage: multer.diskStorage({
     destination(req, file, cb) {
-      cb(null, "uploads/");
+      cb(null, uploadsDir);
     },
     filename(req, file, cb) {
       const ext = path.extname(file.originalname);
