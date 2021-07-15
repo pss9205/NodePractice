@@ -1,5 +1,7 @@
 const express = require("express");
-
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const Room = require("../schemas/room");
 const Chat = require("../schemas/chat");
 
@@ -49,16 +51,19 @@ router.get("/room/:id", async (req, res, next) => {
     const { rooms } = io.of("/chat").adapter;
     if (
       rooms &&
-      rooms[req.params.id] &&
-      room.max <= rooms[req.params.id].length
+      rooms.get(req.params.id) &&
+      room.max <= rooms.get(req.params.id).size
     ) {
       return res.redirect("/?error=room is full");
     }
-
+    const chats = await Chat.find({ room: room._id }).sort("createdAt");
     return res.render("chat", {
       room,
       title: room.title,
-      chats: [],
+      chats,
+      participants: rooms.get(req.params.id)
+        ? rooms.get(req.params.id).size + 1
+        : 1,
       user: req.session.color,
     });
   } catch (error) {
@@ -78,6 +83,55 @@ router.delete("/room/:id", async (req, res, next) => {
   } catch (error) {
     console.error(error);
     next(error);
+  }
+});
+
+router.post("/room/:id/chat", async (req, res, next) => {
+  try {
+    const chat = await Chat.create({
+      room: req.params.id,
+      user: req.session.color,
+      chat: req.body.chat,
+    });
+    req.app.get("io").of("/chat").to(req.params.id).emit("chat", chat);
+    res.send("ok");
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+try {
+  fs.readdirSync("uploads");
+} catch (err) {
+  console.error("create uploads directory");
+  fs.mkdirSync("uploads");
+}
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, done) {
+      done(null, "uploads/");
+    },
+    filename(req, file, done) {
+      const ext = path.extname(file.originalname);
+      done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+router.post("/room/:id/gif", upload.single("gif"), async (req, res, next) => {
+  try {
+    const chat = await Chat.create({
+      room: req.params.id,
+      user: req.session.color,
+      gif: req.file.filename,
+    });
+    req.app.get("io").of("/chat").to(req.params.id).emit("chat", chat);
+  } catch (err) {
+    console.error(err);
+    next(err);
   }
 });
 
