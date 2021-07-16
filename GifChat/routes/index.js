@@ -37,6 +37,57 @@ router.post("/room", async (req, res, next) => {
     next(error);
   }
 });
+router.post("/room/connect/:id", async (req, res, next) => {
+  try {
+    const socket = req.app.get("io").of("/chat");
+    const roomId = req.params.id;
+    currentRoom = socket.adapter.rooms.get(roomId);
+    userCount = currentRoom ? currentRoom.size : 0;
+    const chat = await Chat.create({
+      room: roomId,
+      user: "system",
+      chat: `${req.session.color} enter the room.`,
+    });
+    socket.to(roomId).emit("join", {
+      chat,
+      participants: userCount,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.post("/room/disconnect/:id", async (req, res, next) => {
+  try {
+    const socket = req.app.get("io").of("/chat");
+    const roomId = req.params.id;
+    currentRoom = socket.adapter.rooms.get(roomId);
+    userCount = currentRoom ? currentRoom.size : 0;
+    const chat = await Chat.create({
+      room: roomId,
+      user: "system",
+      chat: `${req.session.color} left the room.`,
+    });
+    if (userCount === 0) {
+      //same with delete
+      await Room.remove({ _id: req.params.id });
+      await Chat.remove({ room: req.params.id });
+      res.send("ok");
+      setTimeout(() => {
+        req.app.get("io").of("room").emit("removeRoom", req.params.id);
+      }, 2000);
+    } else {
+      socket.to(roomId).emit("exit", {
+        chat,
+        participants: userCount,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 router.get("/room/:id", async (req, res, next) => {
   try {

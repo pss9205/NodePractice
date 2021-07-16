@@ -27,34 +27,25 @@ module.exports = (server, app, sessionMiddleware) => {
     referes = referer.split("/");
     const roomId = referes[referes.length - 1].replace(/\?.+/, "");
     socket.join(roomId);
-    let currentRoom = socket.adapter.rooms.get(roomId);
-    let userCount = currentRoom ? currentRoom.size : 0;
-    socket.to(roomId).emit("join", {
-      user: "system",
-      chat: `${socket.handshake.session.color} enter the room.`,
-      participants: userCount,
-    });
+    axios
+      .post(`http://localhost:8005/room/connect/${roomId}`)
+      .then(() => {
+        console.log(`user entered to {roomId}`);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     socket.on("disconnect", () => {
       console.log("disconnection namespace:chat");
       socket.leave(roomId);
-      currentRoom = socket.adapter.rooms.get(roomId);
-      userCount = currentRoom ? currentRoom.size : 0;
-      if (userCount === 0) {
-        axios
-          .delete(`http://localhost:8005/room/${roomId}`)
-          .then(() => {
-            console.log("room was deleted");
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      } else {
-        socket.to(roomId).emit("exit", {
-          user: "system",
-          chat: `${socket.handshake.session.color} left the chat`,
-          participants: userCount,
+      axios
+        .post(`http://localhost:8005/room/disconnect/${roomId}`)
+        .then(() => {
+          console.log(`user left {roomId}`);
+        })
+        .catch((error) => {
+          console.error(error);
         });
-      }
     });
   });
 
