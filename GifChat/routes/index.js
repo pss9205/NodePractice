@@ -37,6 +37,7 @@ router.post("/room", async (req, res, next) => {
     next(error);
   }
 });
+
 router.post("/room/connect/:id", async (req, res, next) => {
   try {
     const socket = req.app.get("io").of("/chat");
@@ -136,15 +137,24 @@ router.delete("/room/:id", async (req, res, next) => {
     next(error);
   }
 });
-
+router.post("/room/:id/ban/:sender", async (req, res, next) => {
+  try {
+    const socket = req.app.get("io").of("/chat");
+    socket.to(req.params.id).emit("ban", req.params.sender);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 router.post("/room/:id/chat", async (req, res, next) => {
   try {
+    const socket = req.app.get("io").of("/chat");
     const chat = await Chat.create({
       room: req.params.id,
       user: req.session.color,
       chat: req.body.chat,
     });
-    req.app.get("io").of("/chat").to(req.params.id).emit("chat", chat);
+    socket.to(req.params.id).emit("chat", chat);
     res.send("ok");
   } catch (error) {
     console.error(error);

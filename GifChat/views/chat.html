@@ -26,7 +26,11 @@
           </div>
         {% else %}
           <div class="other" style="color: {{chat.user}}">
-            <div>{{chat.user}}</div>
+            <div>{{chat.user}}
+              {% if user===room.owner %}
+                <button class='ban-btn' data-sender={{chat.user}} onclick="banBtnListner()">강퇴 </button>
+              {% endif %}
+            </div>
             {% if chat.gif %}
               <img src="/gif/{{chat.gif}}">
             {% else %}
@@ -46,6 +50,14 @@
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
+    function banBtnListner(e){
+      if(confirm('강퇴하시겠습니까?')){
+        axios.post(`/room/{{room._id}}/ban/${encodeURIComponent(e.target.dataset.sender)}`)
+        .catch((err)=>{
+          console.error(err)
+        })
+      }
+    }
     const socket = io.connect('http://localhost:8005/chat', {
       path: '/socket.io',
     });
@@ -77,6 +89,14 @@
       const name = document.createElement('div');
       name.textContent = data.user;
       div.appendChild(name)
+      if('{{user}}' === '{{room.owner}}' && data.user !=='{{room.owner}}'){
+          const banBtn = document.createElement('button');
+          banBtn.className='ban-btn'
+          banBtn.dataset.sender=data.user
+          banBtn.textContent = '강퇴';
+          banBtn.addEventListener("click",banBtnListner)
+          name.appendChild(banBtn);
+      }
       if(data.chat){
         const chat = document.createElement('div');
         chat.textContent = data.chat;
@@ -88,6 +108,14 @@
       }
       div.style.color = data.user;
       document.querySelector('#chat-list').appendChild(div);
+    })
+    socket.on('ban',function(data){
+      console.log(data)
+      if(data=='{{user}}'){
+        socket.disconnect()
+        alert("강퇴되었습니다.")
+        location.href = '/';
+      }
     })
     document.querySelector('#chat-form').addEventListener('submit',function(e){
       e.preventDefault();
