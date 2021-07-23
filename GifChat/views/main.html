@@ -19,7 +19,7 @@
         <td>{{room.title}}</td>
         <td>{{'비밀방' if room.password else '공개방'}}</td>
         <td>{{room.max}}</td>
-        <td style="color: {{room.owner}}">{{room.owner}}</td>
+        <td style="color: {{room.owner}}" id="owner">{{room.owner}}</td>
         <td>
           <button
             data-password="{{'true' if room.password else 'false'}}"
@@ -55,6 +55,7 @@
     td = document.createElement('td');
     td.style.color = data.owner;
     td.textContent = data.owner;
+    td.id="owner"
     tr.appendChild(td);
     td = document.createElement('td');
     const button = document.createElement('button');
@@ -75,7 +76,20 @@
       }
     });
   });
-
+  socket.on('updateRoom',function(data){
+    document.querySelectorAll('tbody tr').forEach(function (tr) {
+      if (tr.dataset.id === data._id) {
+        const tds=tr.getElementsByTagName("td")
+        for(let i=0;i<tds.length;i++){
+          if(tds[i].id=='owner'){
+        console.log(data.owner)
+            tds[i].style.color=data.owner;
+            tds[i].textContent=data.owner;
+          }
+        }
+      }
+    });
+  })
   function addBtnEvent(e) { // 방 입장 클릭 시
     if (e.target.dataset.password === 'true') {
       const password = prompt('비밀번호를 입력하세요');

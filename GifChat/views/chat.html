@@ -117,6 +117,17 @@
         location.href = '/';
       }
     })
+    socket.on("owner", function(data){
+      axios
+        .patch(
+          `http://localhost:8005/room/owner/{{room._id}}`,
+          { owner: '{{user}}' }
+        )
+        .then(() => {
+          console.log(`owner updated to {{user}}`);
+        })
+        .catch((err) => console.error(err));
+    });
     document.querySelector('#chat-form').addEventListener('submit',function(e){
       e.preventDefault();
       if(e.target.chat.value){

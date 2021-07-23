@@ -38,6 +38,22 @@ router.post("/room", async (req, res, next) => {
   }
 });
 
+router.patch("/room/owner/:id", async (req, res, next) => {
+  try {
+    await Room.updateOne(
+      { _id: req.params.id },
+      { $set: { owner: req.body.owner } }
+    );
+    const room = await Room.findOne({ _id: req.params.id });
+    setTimeout(() => {
+      req.app.get("io").of("/room").emit("updateRoom", room);
+    }, 2000);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.post("/room/connect/:id", async (req, res, next) => {
   try {
     const socket = req.app.get("io").of("/chat");
@@ -79,6 +95,14 @@ router.post("/room/disconnect/:id", async (req, res, next) => {
         req.app.get("io").of("room").emit("removeRoom", req.params.id);
       }, 2000);
     } else {
+      const room = await Room.findOne({ _id: req.params.id });
+      if (room.owner == req.session.color) {
+        req.app
+          .get("io")
+          .of("/chat")
+          .to(currentRoom.values().next().value)
+          .emit("owner");
+      }
       socket.to(roomId).emit("exit", {
         chat,
         participants: userCount,
