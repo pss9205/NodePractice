@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest -i",
     "coverage": "jest --coverage",
-    "start": "nodemon server"
+    "start": "cross-env NODE_ENV=production PORT=80 pm2 start server.js -i 0",
+    "dev": "nodemon server"
   },
   "repository": {
     "type": "git",
@@ -20,11 +21,16 @@
   "homepage": "https://github.com/pss9205/NodePractice#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "connect-redis": "^6.0.0",
     "cookie-parse": "^0.4.0",
     "cookie-parser": "^1.4.5",
+    "cross-env": "^7.0.3",
+    "csurf": "^1.11.0",
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "helmet": "^4.6.0",
+    "hpp": "^0.2.3",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "mysql2": "^2.2.5",
@@ -32,8 +38,12 @@
     "passport": "^0.4.1",
     "passport-kakao": "^1.0.1",
     "passport-local": "^1.0.0",
+    "pm2": "^5.1.0",
+    "redis": "^3.1.2",
+    "sanitize-html": "^2.4.0",
     "sequelize": "^6.6.2",
-    "sequelize-cli": "^6.2.0"
+    "sequelize-cli": "^6.2.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
