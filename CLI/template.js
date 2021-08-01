@@ -68,6 +68,21 @@ const makeTemplate = (type, name, directory) => {
   }
 };
 
+const copy = (originalpath, newpath) => {
+  if (!exist(originalpath)) {
+    console.error(chalk.bold.red(`${originalpath} doesn't exist`));
+    return;
+  }
+  if (exist(newpath)) {
+    console.error(chalk.bold.red(`${newpath} already exist`));
+    return;
+  }
+
+  fs.copyFileSync(originalpath, newpath);
+  console.log(chalk.green(`${originalpath} was copied to ${newpath}`));
+};
+
 module.exports = {
   makeTemplate,
+  copy,
 };

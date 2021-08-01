@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require("commander");
-const { makeTemplate } = require("./template");
+const { makeTemplate, copy } = require("./template");
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 program.version("0.0.1", "-v, --version").name("cli");
@@ -17,6 +17,14 @@ program
     makeTemplate(type, options.filename, options.path);
   });
 
+program
+  .command("copy <originalpath> <newpath>")
+  .usage("<original path> <new path>")
+  .description("copy the file")
+  .alias("cp")
+  .action((originalpath, newpath) => {
+    copy(originalpath, newpath);
+  });
 
 program.action((cmd, args) => {
   if (args.args.length > 0) {
@@ -27,32 +35,70 @@ program.action((cmd, args) => {
       .prompt([
         {
           type: "list",
-          name: "type",
-          message: "choose a templte",
-          choices: ["html", "express-router"],
-        },
-        {
-          type: "input",
-          name: "name",
-          message: "enter file name",
-          default: "index",
-        },
-        {
-          type: "input",
-          name: "directory",
-          message: "enter path of file",
-          default: ".",
-        },
-        {
-          type: "confirm",
-          name: "confirm",
-          message: "do you want create file?",
+          name: "command",
+          message: "which command?",
+          choices: ["template", "copy"],
         },
       ])
       .then((answers) => {
-        if (answers.confirm) {
-          makeTemplate(answers.type, answers.name, answers.directory);
-          console.log("exit terminal");
+        if (answers.command === "template") {
+          inquirer
+            .prompt([
+              {
+                type: "list",
+                name: "type",
+                message: "choose a templte",
+                choices: ["html", "express-router"],
+              },
+              {
+                type: "input",
+                name: "name",
+                message: "enter file name",
+                default: "index",
+              },
+              {
+                type: "input",
+                name: "directory",
+                message: "enter path of file",
+                default: ".",
+              },
+              {
+                type: "confirm",
+                name: "confirm",
+                message: "do you want create file?",
+              },
+            ])
+            .then((answers) => {
+              if (answers.confirm) {
+                makeTemplate(answers.type, answers.name, answers.directory);
+                console.log("exit terminal");
+              }
+            });
+        } else {
+          inquirer
+            .prompt([
+              {
+                type: "input",
+                name: "originalpath",
+                message: "enter original file path",
+              },
+              {
+                type: "input",
+                name: "newpath",
+                message: "enter new file path",
+              },
+              {
+                type: "confirm",
+                name: "confirm",
+                message: "do you want create file?",
+              },
+            ])
+            .then((answers) => {
+              if (answers.confirm) {
+                copy(answers.originalpath, answers.newpath);
+                console.log("exit terminal");
+              }
+            });
         }
       });
   }
