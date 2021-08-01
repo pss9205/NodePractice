@@ -6,15 +6,24 @@ const session = require("express-session");
 const nunjucks = require("nunjucks");
 const dotenv = require("dotenv");
 const passport = require("passport");
+const helmet = require("helmet");
+const hpp = require("hpp");
+const redis = require("redis");
+const RedisStore = require("connect-redis")(session);
 
 dotenv.config();
+const redisClient = redis.createClient({
+  url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+  password: process.env.REDIS_PW,
+});
+
 const pageRouter = require("./routes/pages");
 const postRouter = require("./routes/post");
 const userRouter = require("./routes/user");
 const authRouter = require("./routes/auth");
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
-
+const logger = require("./logger");
 const app = express();
 passportConfig();
 app.set("port", process.env.PORT || 8001);
@@ -32,8 +41,13 @@ sequelize
   .catch((error) => {
     console.error(error);
   });
-
-app.use(morgan("dev"));
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
+  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(hpp());
+} else {
+  app.use(morgan("dev"));
+}
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   "/img",
@@ -58,6 +72,7 @@ app.use(
       httpOnly: true,
       secure: false,
     },
+    store: new RedisStore({ client: redisClient }),
   })
 );
 
@@ -68,8 +83,9 @@ app.use("/auth", authRouter);
 app.use("/post", postRouter);
 app.use("/user", userRouter);
 app.use((req, res, next) => {
-  const error = new Error(`${(req, method)} ${req.url} not exist`);
+  const error = new Error(`${req.method} ${req.url} not exist`);
   error.status = 404;
+  logger.error(error.message);
   next(error);
 });
 

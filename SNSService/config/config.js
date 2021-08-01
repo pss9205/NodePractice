@@ -15,6 +15,7 @@ const production = {
   database: env.DB_NAME,
   host: env.DB_ADDR,
   dialect: "mysql",
+  logging: false,
 };
 
 const test = {

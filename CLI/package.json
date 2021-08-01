@@ -1,0 +1,27 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "Practice NodeJS - Cli",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pss9205/NodePractice.git"
+  },
+  "author": "pss",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pss9205/NodePractice/issues"
+  },
+  "homepage": "https://github.com/pss9205/NodePractice#readme",
+  "bin": {
+    "cli": "./command.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^8.1.0",
+    "inquirer": "^8.1.2"
+  }
+}
